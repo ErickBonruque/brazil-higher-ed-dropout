@@ -1,0 +1,11 @@
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+
+# Data: downloaded and built locally, never versioned (except the small sample)
+data/*
+!data/sample/

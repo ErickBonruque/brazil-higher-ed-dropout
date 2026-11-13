@@ -1,0 +1,73 @@
+[project]
+name = "brazil-higher-ed-dropout"
+version = "0.1.0"
+description = "ETL for the Brazilian Higher Education Census (INEP) microdata: Parquet + DuckDB + dropout metrics + dashboard."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.11"
+authors = [{ name = "Erick Bonruque" }]
+keywords = ["inep", "education", "dropout", "duckdb", "parquet", "etl", "open-data", "brazil"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Topic :: Scientific/Engineering :: Information Analysis",
+]
+dependencies = [
+    "duckdb>=1.2",
+    "requests>=2.31",
+    "certifi>=2024.2.2",
+]
+
+[project.optional-dependencies]
+dashboard = [
+    "streamlit>=1.50",
+    "plotly>=5.24",
+    "pandas>=2.2",
+]
+
+[project.scripts]
+hedrop = "higher_ed_dropout.cli:main"
+
+[project.urls]
+Source = "https://github.com/ErickBonruque/brazil-higher-ed-dropout"
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0",
+    "pytest-cov>=5.0",
+    "ruff>=0.6",
+    "mypy>=1.11",
+    "types-requests>=2.31",
+    "matplotlib>=3.8",
+]
+
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/higher_ed_dropout"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "PTH", "S"]
+ignore = ["S608"]  # SQL is built from validated identifiers only (see metrics.py)
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S101", "RUF001"]  # en dash on purpose: cp1252 byte 0x96
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src", "tests"]
+
+[[tool.mypy.overrides]]
+module = ["streamlit.*", "plotly.*", "matplotlib.*"]
+ignore_missing_imports = true
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
