@@ -46,14 +46,15 @@ def ca_bundle() -> str:
     extra = resources.files("higher_ed_dropout").joinpath(
         "certs/rnp-icpedu-gr46-ov-tls-ca-2025.pem"
     )
-    bundle = Path(tempfile.gettempdir()) / "higher_ed_dropout_ca_bundle.pem"
-    bundle.write_text(
-        Path(certifi.where()).read_text(encoding="ascii")
-        + "\n"
-        + extra.read_text(encoding="ascii"),
-        encoding="ascii",
-    )
-    return str(bundle)
+    # A new file with a random name, readable only by this user: a fixed name
+    # in the shared temp folder could be created first by someone else.
+    with tempfile.NamedTemporaryFile(
+        "w", encoding="ascii", prefix="higher_ed_dropout_ca_", suffix=".pem", delete=False
+    ) as fh:
+        fh.write(Path(certifi.where()).read_text(encoding="ascii"))
+        fh.write("\n")
+        fh.write(extra.read_text(encoding="ascii"))
+    return fh.name
 
 
 def make_session(retries: int = 5) -> requests.Session:
